@@ -32,14 +32,44 @@ get_tasks_function = {
     }
 }
 
-tools = types.Tool(function_declarations=[add_task_function, get_tasks_function])
+delete_task_function = {
+    "name": "delete_task",
+    "description": "Delete a task by matching part of its title",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "title_keyword": {"type": "string", "description": "A keyword or phrase from the task title to find and delete"}
+        },
+        "required": ["title_keyword"]
+    }
+}
+
+complete_task_function = {
+    "name": "complete_task",
+    "description": "Mark a task as done/completed by matching part of its title",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "title_keyword": {"type": "string", "description": "A keyword or phrase from the task title to find and mark done"}
+        },
+        "required": ["title_keyword"]
+    }
+}
+
+# --- Now this line works, since everything above it is already defined ---
+tools = types.Tool(function_declarations=[
+    add_task_function, get_tasks_function, delete_task_function, complete_task_function
+])
+
 config = types.GenerateContentConfig(
     system_instruction=(
         "You are a task management assistant. When the user mentions something "
         "they need to do, extract it as a task using the add_task tool. When they "
         "ask about their tasks (e.g. urgent, high priority, upcoming, all), use the "
         "get_tasks tool to retrieve the full list, then filter/reason over it "
-        "yourself to answer exactly what they asked."
+        "yourself to answer exactly what they asked. When they say they've finished "
+        "or completed something, use complete_task. When they want to remove a task, "
+        "use delete_task."
     ),
     tools=[tools]
 )
@@ -77,6 +107,12 @@ def ask_agent(user_message):
                 for t in tasks
             ]
         }
+    elif fn.name == "delete_task":
+        deleted_title = database.delete_task_by_title(fn.args["title_keyword"])
+        result = {"deleted": deleted_title} if deleted_title else {"error": "no matching task found"}
+    elif fn.name == "complete_task":
+        completed_title = database.mark_task_done(fn.args["title_keyword"])
+        result = {"completed": completed_title} if completed_title else {"error": "no matching task found"}
     else:
         result = {"error": "unknown function"}
 

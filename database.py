@@ -46,3 +46,59 @@ def mark_done(task_id):
     conn.execute("UPDATE tasks SET done = 1 WHERE id = ?", (task_id,))
     conn.commit()
     conn.close()
+
+    def delete_task_by_title(title_keyword):
+      conn = sqlite3.connect(DB_NAME)
+      cursor = conn.execute(
+        "SELECT id, title FROM tasks WHERE title LIKE ? AND done = 0",
+        (f"%{title_keyword}%",)
+    )
+    matches = cursor.fetchall()
+    if matches:
+        task_id = matches[0][0]
+        conn.execute("DELETE FROM tasks WHERE id = ?", (task_id,))
+        conn.commit()
+    conn.close()
+    return matches[0][1] if matches else None
+
+def mark_task_done(title_keyword):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.execute(
+        "SELECT id, title FROM tasks WHERE title LIKE ? AND done = 0",
+        (f"%{title_keyword}%",)
+    )
+    matches = cursor.fetchall()
+    if matches:
+        task_id = matches[0][0]
+        conn.execute("UPDATE tasks SET done = 1 WHERE id = ?", (task_id,))
+        conn.commit()
+    conn.close()
+    return matches[0][1] if matches else None
+
+def delete_task_by_title(title_keyword):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.execute(
+        "SELECT id, title FROM tasks WHERE title LIKE ? AND done = 0",
+        (f"%{title_keyword}%",)
+    )
+    matches = cursor.fetchall()
+    if matches:
+        task_id = matches[0][0]
+        conn.execute("DELETE FROM tasks WHERE id = ?", (task_id,))
+        conn.commit()
+    conn.close()
+    return matches[0][1] if matches else None
+
+def mark_task_done(title_keyword):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.execute(
+        "SELECT id, title FROM tasks WHERE title LIKE ? AND done = 0",
+        (f"%{title_keyword}%",)
+    )
+    matches = cursor.fetchall()
+    if matches:
+        task_id = matches[0][0]
+        conn.execute("UPDATE tasks SET done = 1 WHERE id = ?", (task_id,))
+        conn.commit()
+    conn.close()
+    return matches[0][1] if matches else None
